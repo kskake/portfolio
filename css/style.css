@@ -18,3 +18,13 @@ h1, h2 {
 .btn-primary:hover {
     background: #0056b3;
 }
+.work-history-entry {
+    background-color: #f8f9fa;
+    padding: 15px;
+    border-radius: 5px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    transition: transform 0.2s;
+}
+.work-history-entry:hover {
+    transform: scale(1.03);
+}
