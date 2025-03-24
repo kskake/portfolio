@@ -8,7 +8,7 @@ body {
 .card:hover {
     transform: scale(1.03);
 }
-h1, h2 {
+h1, h2, h3, h5 {
     color: #333;
 }
 .btn-primary {
@@ -27,4 +27,22 @@ h1, h2 {
 }
 .work-history-entry:hover {
     transform: scale(1.03);
+}
+.work-history-entry p {
+    font-size: 0.95rem;
+    line-height: 1.6;
+    color: #555;
+}
+ul li {
+    list-style: none;
+    position: relative;
+    padding-left: 25px;
+    margin-bottom: 10px;
+}
+ul li:before {
+    content: '\f00c'; /* Font Awesome checkmark icon */
+    font-family: 'FontAwesome';
+    position: absolute;
+    left: 0;
+    color: #007bff;
 }
