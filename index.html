@@ -12,15 +12,17 @@
     <!-- Navbar -->
     <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
         <div class="container">
-            <a class="navbar-brand" href="#">KSC Portfolio</a>
+            <a class="navbar-brand" href="index.html">KSC Portfolio</a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
                 <span class="navbar-toggler-icon"></span>
             </button>
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav ms-auto">
-                    <li class="nav-item"><a class="nav-link" href="/index.html">Home</a></li>
-                    <li class="nav-item"><a class="nav-link" href="/about.html">About</a></li>
-                    <li class="nav-item"><a class="nav-link" href="/contact.html">Contact</a></li>
+                    <li class="nav-item"><a class="nav-link" href="index.html">Home</a></li>
+                    <li class="nav-item"><a class="nav-link" href="about.html">About</a></li>
+                    <li class="nav-item"><a class="nav-link" href="contact.html">Contact</a></li>
+                    <li class="nav-item"><a class="nav-link" href="whiteboard.html">Whiteboard</a></li>
+                    <li class="nav-item"><a class="nav-link" href="workflow.html">Workflow</a></li>
                 </ul>
             </div>
         </div>
@@ -29,7 +31,7 @@
     <!-- Intro -->
     <section class="container my-5 text-center">
         <h1>Hey, I’m Kevin</h1>
-        <p class="lead">A coder who builds stuff that works. I've used HTML, JavaScript, and Bootstrap to make this site. Check my other projects below.</p>
+        <p class="lead">A coder who builds stuff that works. I've used HTML, JavaScript, and Bootstrap to make this site. Check my other projects and tools below.</p>
     </section>
 
     <!-- Project Highlights -->
@@ -45,7 +47,6 @@
                     </div>
                 </div>
             </div>
-            <!-- Project 2 -->
             <div class="col-md-4 mb-4">
                 <div class="card">
                     <img src="img/weatherapp.png" class="card-img-top" alt="Weather App">
@@ -84,15 +85,46 @@
         </div>
     </section>
 
+    <!-- CRM Dashboard -->
+    <section class="container my-5" id="dashboard">
+        <h2 class="text-center mb-4">Construction Lead Management</h2>
+        <div class="row mb-4">
+            <div class="col-md-3">
+                <div class="card text-center p-3">Total Expected: $<span id="total">0</span></div>
+            </div>
+            <div class="col-md-3">
+                <div class="card text-center p-3">Avg Deal: $<span id="avg">0</span></div>
+            </div>
+            <div class="col-md-3">
+                <div class="card text-center p-3">Leads: <span id="count">0</span></div>
+            </div>
+            <div class="col-md-3">
+                <div class="card text-center p-3">Avg Follow-up: <span id="avgDays">0</span> days</div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-6 mb-4">
+                <canvas id="stageChart"></canvas>
+            </div>
+            <div class="col-md-6">
+                <table class="table" id="topLeads">
+                    <thead><tr><th>Value</th><th>Stage</th></tr></thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+        </div>
+    </section>
+
     <!-- Footer -->
     <footer class="bg-dark text-white text-center py-3">
         <div class="container">
             <p class="mb-1">Connect with me on <a href="https://github.com/kskake" target="_blank" class="text-white text-decoration-underline">GitHub</a></p>
-            <p class="mb-0">&copy; 2025 KSC Portfolio. All rights reserved.</p>
+            <p class="mb-0">© 2025 KSC Portfolio. All rights reserved.</p>
         </div>
     </footer>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="js/script.js"></script>
 </body>
 </html>
