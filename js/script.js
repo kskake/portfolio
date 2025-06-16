@@ -50,11 +50,11 @@ function updateWhiteboard() {
             div.draggable = true;
             div.dataset.id = step.id;
             div.addEventListener('dragstart', dragStart);
-            div.addEventListener('dragover', dragOver);
-            div.addEventListener('drop', drop);
             whiteboard.appendChild(div);
         });
 
+        whiteboard.addEventListener('dragover', dragOver);
+        whiteboard.addEventListener('drop', drop);
         drawConnections();
         localStorage.setItem('workflowSteps', JSON.stringify(workflowSteps));
         localStorage.setItem('connections', JSON.stringify(connections));
@@ -63,10 +63,12 @@ function updateWhiteboard() {
 
 function dragStart(e) {
     e.dataTransfer.setData('text/plain', e.target.dataset.id);
+    e.dataTransfer.effectAllowed = 'move';
 }
 
 function dragOver(e) {
     e.preventDefault();
+    e.dataTransfer.dropEffect = 'move';
 }
 
 function drop(e) {
@@ -74,8 +76,9 @@ function drop(e) {
     const id = e.dataTransfer.getData('text');
     const step = workflowSteps.find(s => s.id == id);
     if (step) {
-        step.x = e.clientX - e.target.offsetLeft - 50;
-        step.y = e.clientY - e.target.offsetTop - 50;
+        const whiteboardRect = document.getElementById('whiteboard').getBoundingClientRect();
+        step.x = e.clientX - whiteboardRect.left - 100; // Adjust for node width
+        step.y = e.clientY - whiteboardRect.top - 50;  // Adjust for node height
         updateWhiteboard();
     }
 }
@@ -116,25 +119,27 @@ function drawConnections() {
             const toRect = toStep.getBoundingClientRect();
             const whiteboardRect = whiteboard.getBoundingClientRect();
             const x1 = fromRect.left + fromRect.width / 2 - whiteboardRect.left;
-            const y1 = fromRect.top + fromRect.height / 2 - whiteboardRect.top;
+            const y1 = fromRect.bottom - whiteboardRect.top; // Connect from bottom
             const x2 = toRect.left + toRect.width / 2 - whiteboardRect.left;
-            const y2 = toRect.top + toRect.height / 2 - whiteboardRect.top;
+            const y2 = toRect.top - whiteboardRect.top; // Connect to top
             svg.setAttribute('style', 'position: absolute; z-index: -1;');
-            svg.innerHTML = `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" style="stroke:#000; stroke-width:2" />`;
+            svg.innerHTML = `<path d="M${x1},${y1} C${x1},${(y1 + y2) / 2} ${x2},${(y1 + y2) / 2} ${x2},${y2}" style="stroke:#000; stroke-width:2; fill:none;" />`;
             whiteboard.appendChild(svg);
         }
     });
 }
 
 document.getElementById('whiteboard').addEventListener('click', (e) => {
-    if (e.target.className === 'workflow-node') {
-        const id = e.target.dataset.id;
+    if (e.target.className === 'workflow-node' || e.target.tagName === 'BUTTON') {
+        const id = e.target.closest('.workflow-node').dataset.id;
         const connectTo = prompt(`Connect ${workflowSteps.find(s => s.id == id).name} to another step (ID):`);
         if (connectTo) {
             const toStep = workflowSteps.find(s => s.id == connectTo);
             if (toStep && id != connectTo) {
                 connections.push({ from: parseInt(id), to: parseInt(connectTo) });
                 drawConnections();
+            } else {
+                alert('Invalid connection or self-connection not allowed.');
             }
         }
     }
