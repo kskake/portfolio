@@ -1,21 +1,68 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <link rel="stylesheet" href="styles.css">
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Platform - Construction Leads</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
-  <div class="dashboard">
-    <h1>Platform - Construction Leads</h1>
-    <div class="metrics">
-      <div>Total Expected: $<span id="total">0</span></div>
-      <div>Avg Deal: $<span id="avg">0</span></div>
-      <div>Leads: <span id="count">0</span></div>
-      <div>Avg Follow-up: <span id="avgDays">0</span> days</div>
-    </div>
-    <canvas id="stageChart"></canvas>
-    <table id="topLeads"></table>
-  </div>
-  <script src="script.js"></script>
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <div class="container">
+            <a class="navbar-brand" href="#">Platform</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item"><a class="nav-link" href="#">Dashboard</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#">Settings</a></li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Dashboard -->
+    <section class="container my-5">
+        <h1 class="text-center mb-4">Platform - Construction Leads</h1>
+        <div class="row mb-4">
+            <div class="col-md-3">
+                <div class="card text-center p-3">Total Expected: $<span id="total">0</span></div>
+            </div>
+            <div class="col-md-3">
+                <div class="card text-center p-3">Avg Deal: $<span id="avg">0</span></div>
+            </div>
+            <div class="col-md-3">
+                <div class="card text-center p-3">Leads: <span id="count">0</span></div>
+            </div>
+            <div class="col-md-3">
+                <div class="card text-center p-3">Avg Follow-up: <span id="avgDays">0</span> days</div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-6 mb-4">
+                <canvas id="stageChart"></canvas>
+            </div>
+            <div class="col-md-6">
+                <table class="table" id="topLeads">
+                    <thead><tr><th>Value</th><th>Stage</th></tr></thead>
+                </table>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-dark text-white text-center py-3">
+        <div class="container">
+            <p class="mb-1">© 2025 Platform by KSC. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="js/script.js"></script>
 </body>
 </html>
