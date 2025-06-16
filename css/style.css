@@ -79,6 +79,7 @@ ul li:before {
     cursor: move;
     border-radius: 5px;
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    min-width: 200px;
 }
 .workflow-node:hover {
     background: #f0f0f0;
