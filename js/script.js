@@ -8,6 +8,7 @@ let leads = [
 // Whiteboard Workflow Steps and Connections
 let workflowSteps = JSON.parse(localStorage.getItem('workflowSteps')) || [];
 let connections = JSON.parse(localStorage.getItem('connections')) || [];
+let tempLine = null; // For temporary connection line
 
 function updateDashboard() {
     if (document.getElementById('dashboard')) {
@@ -44,7 +45,7 @@ function updateWhiteboard() {
         workflowSteps.forEach(step => {
             if (!step.x || !step.y) {
                 step.x = Math.random() * 400; // Random x within whiteboard width
-                step.y = Math.random() * 400; // Random y within whiteboard height
+                step.y = Math.random() * 900; // Random y within doubled height
             }
         });
 
@@ -54,7 +55,7 @@ function updateWhiteboard() {
             div.id = `step-${step.id}`;
             div.style.left = `${step.x}px`;
             div.style.top = `${step.y}px`;
-            div.innerHTML = `<strong>${step.name}</strong><br><small>${step.condition}</small><br>${step.action}<br><button class="btn btn-sm btn-secondary mt-1" onclick="connectStep(${index})">Connect</button><button class="btn btn-sm btn-danger mt-1" onclick="removeStep(${index})">Remove</button>`;
+            div.innerHTML = `<strong>${step.name}</strong><br><small>${step.condition}</small><br>${step.action}<br><button class="btn btn-sm btn-secondary mt-1 connect-btn" onclick="startConnection(${index})">Connect</button><button class="btn btn-sm btn-danger mt-1" onclick="removeStep(${index})">Remove</button>`;
             div.draggable = true;
             div.dataset.id = step.id;
             div.addEventListener('dragstart', dragStart);
@@ -63,7 +64,19 @@ function updateWhiteboard() {
 
         whiteboard.addEventListener('dragover', dragOver);
         whiteboard.addEventListener('drop', drop);
+        whiteboard.addEventListener('mousemove', updateTempLine);
+        whiteboard.addEventListener('mouseleave', () => { if (tempLine) tempLine.remove(); });
         drawConnections();
+
+        // Back to Top Button
+        const backToTop = document.getElementById('backToTop');
+        whiteboard.addEventListener('scroll', () => {
+            backToTop.style.display = whiteboard.scrollTop > 100 ? 'block' : 'none';
+        });
+        backToTop.addEventListener('click', () => {
+            whiteboard.scrollTo({ top: 0, behavior: 'smooth' });
+        });
+
         localStorage.setItem('workflowSteps', JSON.stringify(workflowSteps));
         localStorage.setItem('connections', JSON.stringify(connections));
     }
@@ -86,11 +99,11 @@ function drop(e) {
     if (step) {
         const whiteboardRect = document.getElementById('whiteboard').getBoundingClientRect();
         step.x = e.clientX - whiteboardRect.left - 100; // Adjust for node width
-        step.y = e.clientY - whiteboardRect.top - 50;  // Adjust for node height
+        step.y = e.clientY - whiteboardRect.top - 50 + whiteboard.scrollTop; // Adjust for scroll
         if (step.x < 0) step.x = 0;
         if (step.y < 0) step.y = 0;
         if (step.x > whiteboardRect.width - 200) step.x = whiteboardRect.width - 200;
-        if (step.y > whiteboardRect.height - 100) step.y = whiteboardRect.height - 100;
+        if (step.y > 900) step.y = 900; // Limit to 900px within 1000px height
         updateWhiteboard();
     }
 }
@@ -108,7 +121,7 @@ document.querySelector('#workflowForm')?.addEventListener('submit', (e) => {
     const condition = document.getElementById('condition').value.trim();
     const action = document.getElementById('action').value.trim();
     if (name && condition && action) {
-        workflowSteps.push({ id: Date.now(), name, condition, action, x: Math.random() * 400, y: Math.random() * 400 });
+        workflowSteps.push({ id: Date.now(), name, condition, action, x: Math.random() * 400, y: Math.random() * 900 });
         document.getElementById('stepName').value = '';
         document.getElementById('condition').value = '';
         document.getElementById('action').value = '';
@@ -120,7 +133,9 @@ document.querySelector('#workflowForm')?.addEventListener('submit', (e) => {
 function drawConnections() {
     const whiteboard = document.getElementById('whiteboard');
     const svgs = whiteboard.getElementsByTagName('svg');
-    for (let svg of svgs) svg.remove();
+    for (let svg of svgs) {
+        if (!svg.classList.contains('temp-line')) svg.remove();
+    }
 
     connections.forEach(conn => {
         const fromStep = document.getElementById(`step-${conn.from}`);
@@ -131,9 +146,9 @@ function drawConnections() {
             const toRect = toStep.getBoundingClientRect();
             const whiteboardRect = whiteboard.getBoundingClientRect();
             const x1 = fromRect.left + fromRect.width / 2 - whiteboardRect.left;
-            const y1 = fromRect.bottom - whiteboardRect.top; // Connect from bottom
+            const y1 = fromRect.bottom - whiteboardRect.top + whiteboard.scrollTop;
             const x2 = toRect.left + toRect.width / 2 - whiteboardRect.left;
-            const y2 = toRect.top - whiteboardRect.top; // Connect to top
+            const y2 = toRect.top - whiteboardRect.top + whiteboard.scrollTop;
             svg.setAttribute('style', 'position: absolute; z-index: -1;');
             svg.innerHTML = `<path d="M${x1},${y1} C${x1},${(y1 + y2) / 2} ${x2},${(y1 + y2) / 2} ${x2},${y2}" style="stroke:#000; stroke-width:2; fill:none;" />`;
             whiteboard.appendChild(svg);
@@ -141,18 +156,58 @@ function drawConnections() {
     });
 }
 
-function connectStep(index) {
-    const id = workflowSteps[index].id;
-    const connectTo = prompt(`Connect ${workflowSteps[index].name} to another step (ID):`);
-    if (connectTo) {
-        const toStep = workflowSteps.find(s => s.id == connectTo);
-        if (toStep && id != connectTo) {
-            connections.push({ from: parseInt(id), to: parseInt(connectTo) });
-            drawConnections();
-        } else {
-            alert('Invalid connection or self-connection not allowed.');
+function startConnection(index) {
+    const fromId = workflowSteps[index].id;
+    const whiteboard = document.getElementById('whiteboard');
+    const fromStep = document.getElementById(`step-${fromId}`);
+    if (!tempLine) {
+        tempLine = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+        tempLine.className = 'temp-line';
+        whiteboard.appendChild(tempLine);
+    }
+
+    function updateTempLine(e) {
+        if (tempLine) {
+            const whiteboardRect = whiteboard.getBoundingClientRect();
+            const fromRect = fromStep.getBoundingClientRect();
+            const x1 = fromRect.left + fromRect.width / 2 - whiteboardRect.left;
+            const y1 = fromRect.bottom - whiteboardRect.top + whiteboard.scrollTop;
+            const x2 = e.clientX - whiteboardRect.left;
+            const y2 = e.clientY - whiteboardRect.top + whiteboard.scrollTop;
+            tempLine.innerHTML = `<path d="M${x1},${y1} L${x2},${y2}" style="stroke:#00f; stroke-width:2; stroke-dasharray:5; fill:none;" />`;
+            tempLine.setAttribute('style', 'position: absolute; z-index: -1;');
         }
     }
+
+    whiteboard.addEventListener('mousemove', updateTempLine);
+
+    whiteboard.addEventListener('click', function connectTarget(e) {
+        if (e.target.className === 'connect-btn' && e.target.closest('.workflow-node')?.id !== `step-${fromId}`) {
+            const toId = e.target.closest('.workflow-node').dataset.id;
+            const toStep = workflowSteps.find(s => s.id == toId);
+            if (toStep && fromId != toId) {
+                connections.push({ from: parseInt(fromId), to: parseInt(toId) });
+                drawConnections();
+                tempLine.remove();
+                tempLine = null;
+                whiteboard.removeEventListener('mousemove', updateTempLine);
+                whiteboard.removeEventListener('click', connectTarget);
+            } else {
+                alert('Invalid connection or self-connection not allowed.');
+            }
+        } else if (e.target.tagName !== 'BUTTON') {
+            tempLine.remove();
+            tempLine = null;
+            whiteboard.removeEventListener('mousemove', updateTempLine);
+            whiteboard.removeEventListener('click', connectTarget);
+        }
+    }, { once: true });
+}
+
+function disconnectStep(index) {
+    const id = workflowSteps[index].id;
+    connections = connections.filter(c => c.from !== id && c.to !== id);
+    drawConnections();
 }
 
 function updateWorkflow() {
