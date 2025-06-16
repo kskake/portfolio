@@ -2,15 +2,18 @@ body {
     font-family: Arial, sans-serif;
     background: #f5f5f5;
 }
+
 .card {
     transition: transform 0.2s;
 }
 .card:hover {
     transform: scale(1.03);
 }
+
 h1, h2, h3, h5 {
     color: #333;
 }
+
 .btn-primary {
     background: #007bff;
     border: none;
@@ -18,6 +21,7 @@ h1, h2, h3, h5 {
 .btn-primary:hover {
     background: #0056b3;
 }
+
 .work-history-entry {
     background-color: #f8f9fa;
     padding: 15px;
@@ -33,6 +37,7 @@ h1, h2, h3, h5 {
     line-height: 1.6;
     color: #555;
 }
+
 ul li {
     list-style: none;
     position: relative;
@@ -45,4 +50,54 @@ ul li:before {
     position: absolute;
     left: 0;
     color: #007bff;
+}
+
+/* Dashboard Specific Styles */
+#dashboard .metrics .card {
+    background: #fff;
+    border: 1px solid #ddd;
+}
+#dashboard canvas {
+    max-width: 100%;
+    height: auto;
+}
+#dashboard table {
+    background: #fff;
+    border: 1px solid #ddd;
+}
+
+/* Whiteboard Specific Styles */
+#whiteboard {
+    overflow: auto;
+    padding: 10px;
+}
+.workflow-node {
+    position: absolute;
+    background: #fff;
+    border: 1px solid #000;
+    padding: 10px;
+    cursor: move;
+    border-radius: 5px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+.workflow-node:hover {
+    background: #f0f0f0;
+}
+
+/* Workflow Management Specific Styles */
+#workflow #workflowSteps {
+    max-height: 300px;
+    overflow-y: auto;
+    border: 1px solid #ddd;
+}
+#workflow canvas {
+    max-width: 100%;
+    height: 300px;
+}
+#workflow .list-group-item {
+    background: #fff;
+    border: 1px solid #ddd;
+}
+#workflow .list-group-item:hover {
+    background: #f8f9fa;
 }
