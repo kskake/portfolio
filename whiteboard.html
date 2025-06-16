@@ -33,17 +33,21 @@
         <h1 class="text-center mb-4">Portfolio - Whiteboard</h1>
         <div class="row mb-4">
             <div class="col-md-4">
-                <form id="tileForm" class="card p-3">
-                    <h5>Create New Tile</h5>
+                <form id="workflowForm" class="card p-3">
+                    <h5>Create Workflow Step</h5>
                     <div class="mb-3">
-                        <label for="category" class="form-label">Category</label>
-                        <input type="text" class="form-control" id="category" placeholder="e.g., Lead Capture">
+                        <label for="stepName" class="form-label">Step Name</label>
+                        <input type="text" class="form-control" id="stepName" placeholder="e.g., Lead Capture">
                     </div>
                     <div class="mb-3">
-                        <label for="automation" class="form-label">Automation</label>
-                        <input type="text" class="form-control" id="automation" placeholder="e.g., Send Email">
+                        <label for="condition" class="form-label">Condition</label>
+                        <input type="text" class="form-control" id="condition" placeholder="e.g., If then branch">
                     </div>
-                    <button type="submit" class="btn btn-primary">Add Tile</button>
+                    <div class="mb-3">
+                        <label for="action" class="form-label">Action</label>
+                        <input type="text" class="form-control" id="action" placeholder="e.g., Send Email">
+                    </div>
+                    <button type="submit" class="btn btn-primary">Add Step</button>
                 </form>
             </div>
             <div class="col-md-8">
