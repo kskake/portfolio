@@ -5,9 +5,9 @@ let leads = [
     { value: 15000, stage: 'Negotiation', days: 15 }
 ];
 
-// Whiteboard Tiles and Connections
-let tiles = [];
-let connections = [];
+// Whiteboard Workflow Steps and Connections
+let workflowSteps = JSON.parse(localStorage.getItem('workflowSteps')) || [];
+let connections = JSON.parse(localStorage.getItem('connections')) || [];
 
 function updateDashboard() {
     if (document.getElementById('dashboard')) {
@@ -38,17 +38,17 @@ function updateDashboard() {
 function updateWhiteboard() {
     if (document.getElementById('whiteboard')) {
         const whiteboard = document.getElementById('whiteboard');
-        whiteboard.innerHTML = ''; // Clear existing tiles
+        whiteboard.innerHTML = ''; // Clear existing steps
 
-        tiles.forEach(tile => {
+        workflowSteps.forEach((step, index) => {
             const div = document.createElement('div');
             div.className = 'workflow-node';
-            div.id = `tile-${tile.id}`;
-            div.style.left = `${tile.x}px`;
-            div.style.top = `${tile.y}px`;
-            div.innerHTML = `<strong>${tile.category}</strong><br>${tile.automation}<br><button class="btn btn-sm btn-danger mt-2" onclick="removeTile(${tile.id})">Remove</button>`;
+            div.id = `step-${step.id}`;
+            div.style.left = `${step.x}px`;
+            div.style.top = `${step.y}px`;
+            div.innerHTML = `<strong>${step.name}</strong><br><small>${step.condition}</small><br>${step.action}<br><button class="btn btn-sm btn-danger mt-2" onclick="removeStep(${index})">Remove</button>`;
             div.draggable = true;
-            div.dataset.id = tile.id;
+            div.dataset.id = step.id;
             div.addEventListener('dragstart', dragStart);
             div.addEventListener('dragover', dragOver);
             div.addEventListener('drop', drop);
@@ -56,6 +56,8 @@ function updateWhiteboard() {
         });
 
         drawConnections();
+        localStorage.setItem('workflowSteps', JSON.stringify(workflowSteps));
+        localStorage.setItem('connections', JSON.stringify(connections));
     }
 }
 
@@ -70,31 +72,33 @@ function dragOver(e) {
 function drop(e) {
     e.preventDefault();
     const id = e.dataTransfer.getData('text');
-    const tile = tiles.find(t => t.id == id);
-    if (tile) {
-        tile.x = e.clientX - e.target.offsetLeft - 50;
-        tile.y = e.clientY - e.target.offsetTop - 50;
+    const step = workflowSteps.find(s => s.id == id);
+    if (step) {
+        step.x = e.clientX - e.target.offsetLeft - 50;
+        step.y = e.clientY - e.target.offsetTop - 50;
         updateWhiteboard();
     }
 }
 
-function removeTile(id) {
-    tiles = tiles.filter(t => t.id !== id);
-    connections = connections.filter(c => c.from !== id && c.to !== id);
+function removeStep(index) {
+    workflowSteps.splice(index, 1);
+    connections = connections.filter(c => c.from !== workflowSteps[index]?.id && c.to !== workflowSteps[index]?.id);
     updateWhiteboard();
 }
 
-// Form Submission Handler
-document.querySelector('form')?.addEventListener('submit', (e) => {
+// Form Submission Handler for Workflow Steps
+document.querySelector('#workflowForm')?.addEventListener('submit', (e) => {
     e.preventDefault();
-    const category = document.getElementById('category').value;
-    const automation = document.getElementById('automation').value;
-    if (category && automation) {
-        tiles.push({ id: Date.now(), category, automation, x: 50, y: 50 });
-        document.getElementById('category').value = '';
-        document.getElementById('automation').value = '';
+    const name = document.getElementById('stepName').value.trim();
+    const condition = document.getElementById('condition').value.trim();
+    const action = document.getElementById('action').value.trim();
+    if (name && condition && action) {
+        workflowSteps.push({ id: Date.now(), name, condition, action, x: 50, y: 50 * (workflowSteps.length + 1) });
+        document.getElementById('stepName').value = '';
+        document.getElementById('condition').value = '';
+        document.getElementById('action').value = '';
         updateWhiteboard();
-        console.log('Form submitted. Add Formspree or something later.');
+        console.log('Workflow step added locally.');
     }
 });
 
@@ -104,12 +108,12 @@ function drawConnections() {
     for (let svg of svgs) svg.remove();
 
     connections.forEach(conn => {
-        const fromTile = document.getElementById(`tile-${conn.from}`);
-        const toTile = document.getElementById(`tile-${conn.to}`);
-        if (fromTile && toTile) {
+        const fromStep = document.getElementById(`step-${conn.from}`);
+        const toStep = document.getElementById(`step-${conn.to}`);
+        if (fromStep && toStep) {
             const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
-            const fromRect = fromTile.getBoundingClientRect();
-            const toRect = toTile.getBoundingClientRect();
+            const fromRect = fromStep.getBoundingClientRect();
+            const toRect = toStep.getBoundingClientRect();
             const whiteboardRect = whiteboard.getBoundingClientRect();
             const x1 = fromRect.left + fromRect.width / 2 - whiteboardRect.left;
             const y1 = fromRect.top + fromRect.height / 2 - whiteboardRect.top;
@@ -125,10 +129,10 @@ function drawConnections() {
 document.getElementById('whiteboard').addEventListener('click', (e) => {
     if (e.target.className === 'workflow-node') {
         const id = e.target.dataset.id;
-        const connectTo = prompt(`Connect ${tiles.find(t => t.id == id).category} to another tile (ID):`);
+        const connectTo = prompt(`Connect ${workflowSteps.find(s => s.id == id).name} to another step (ID):`);
         if (connectTo) {
-            const toTile = tiles.find(t => t.id == connectTo);
-            if (toTile && id != connectTo) {
+            const toStep = workflowSteps.find(s => s.id == connectTo);
+            if (toStep && id != connectTo) {
                 connections.push({ from: parseInt(id), to: parseInt(connectTo) });
                 drawConnections();
             }
