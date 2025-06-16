@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <link rel="stylesheet" href="styles.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+  <div class="dashboard">
+    <h1>Platform - Construction Leads</h1>
+    <div class="metrics">
+      <div>Total Expected: $<span id="total">0</span></div>
+      <div>Avg Deal: $<span id="avg">0</span></div>
+      <div>Leads: <span id="count">0</span></div>
+      <div>Avg Follow-up: <span id="avgDays">0</span> days</div>
+    </div>
+    <canvas id="stageChart"></canvas>
+    <table id="topLeads"></table>
+  </div>
+  <script src="script.js"></script>
+</body>
+</html>
