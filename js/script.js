@@ -40,13 +40,21 @@ function updateWhiteboard() {
         const whiteboard = document.getElementById('whiteboard');
         whiteboard.innerHTML = ''; // Clear existing steps
 
+        // Initialize with random positions if not set
+        workflowSteps.forEach(step => {
+            if (!step.x || !step.y) {
+                step.x = Math.random() * 400; // Random x within whiteboard width
+                step.y = Math.random() * 400; // Random y within whiteboard height
+            }
+        });
+
         workflowSteps.forEach((step, index) => {
             const div = document.createElement('div');
             div.className = 'workflow-node';
             div.id = `step-${step.id}`;
             div.style.left = `${step.x}px`;
             div.style.top = `${step.y}px`;
-            div.innerHTML = `<strong>${step.name}</strong><br><small>${step.condition}</small><br>${step.action}<br><button class="btn btn-sm btn-danger mt-2" onclick="removeStep(${index})">Remove</button>`;
+            div.innerHTML = `<strong>${step.name}</strong><br><small>${step.condition}</small><br>${step.action}<br><button class="btn btn-sm btn-secondary mt-1" onclick="connectStep(${index})">Connect</button><button class="btn btn-sm btn-danger mt-1" onclick="removeStep(${index})">Remove</button>`;
             div.draggable = true;
             div.dataset.id = step.id;
             div.addEventListener('dragstart', dragStart);
@@ -79,6 +87,10 @@ function drop(e) {
         const whiteboardRect = document.getElementById('whiteboard').getBoundingClientRect();
         step.x = e.clientX - whiteboardRect.left - 100; // Adjust for node width
         step.y = e.clientY - whiteboardRect.top - 50;  // Adjust for node height
+        if (step.x < 0) step.x = 0;
+        if (step.y < 0) step.y = 0;
+        if (step.x > whiteboardRect.width - 200) step.x = whiteboardRect.width - 200;
+        if (step.y > whiteboardRect.height - 100) step.y = whiteboardRect.height - 100;
         updateWhiteboard();
     }
 }
@@ -96,7 +108,7 @@ document.querySelector('#workflowForm')?.addEventListener('submit', (e) => {
     const condition = document.getElementById('condition').value.trim();
     const action = document.getElementById('action').value.trim();
     if (name && condition && action) {
-        workflowSteps.push({ id: Date.now(), name, condition, action, x: 50, y: 50 * (workflowSteps.length + 1) });
+        workflowSteps.push({ id: Date.now(), name, condition, action, x: Math.random() * 400, y: Math.random() * 400 });
         document.getElementById('stepName').value = '';
         document.getElementById('condition').value = '';
         document.getElementById('action').value = '';
@@ -129,21 +141,19 @@ function drawConnections() {
     });
 }
 
-document.getElementById('whiteboard').addEventListener('click', (e) => {
-    if (e.target.className === 'workflow-node' || e.target.tagName === 'BUTTON') {
-        const id = e.target.closest('.workflow-node').dataset.id;
-        const connectTo = prompt(`Connect ${workflowSteps.find(s => s.id == id).name} to another step (ID):`);
-        if (connectTo) {
-            const toStep = workflowSteps.find(s => s.id == connectTo);
-            if (toStep && id != connectTo) {
-                connections.push({ from: parseInt(id), to: parseInt(connectTo) });
-                drawConnections();
-            } else {
-                alert('Invalid connection or self-connection not allowed.');
-            }
+function connectStep(index) {
+    const id = workflowSteps[index].id;
+    const connectTo = prompt(`Connect ${workflowSteps[index].name} to another step (ID):`);
+    if (connectTo) {
+        const toStep = workflowSteps.find(s => s.id == connectTo);
+        if (toStep && id != connectTo) {
+            connections.push({ from: parseInt(id), to: parseInt(connectTo) });
+            drawConnections();
+        } else {
+            alert('Invalid connection or self-connection not allowed.');
         }
     }
-});
+}
 
 function updateWorkflow() {
     if (document.getElementById('workflow')) {
