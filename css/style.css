@@ -45,7 +45,7 @@ ul li {
     margin-bottom: 10px;
 }
 ul li:before {
-    content: '\f00c'; /* Font Awesome checkmark icon */
+    content: '\f00c';
     font-family: 'FontAwesome';
     position: absolute;
     left: 0;
